@@ -29,6 +29,52 @@
         window.history.replaceState(null, null, basePath + decoded + l.hash);
       })(window.location);
     </script>
+    <script>
+      (function () {
+        document.documentElement.classList.add("render-blocked");
+      })();
+    </script>
+    <style data-initial-render-lock="">
+      html.render-blocked body {
+        opacity: 0;
+      }
+      html.render-blocked body,
+      html.render-ready body {
+        transition: opacity 160ms ease;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html.render-blocked body,
+        html.render-ready body {
+          transition: none;
+        }
+      }
+    </style>
+    <script>
+      (function () {
+        var released = false;
+        function releaseRender() {
+          if (released) return;
+          released = true;
+          document.documentElement.classList.remove("render-blocked");
+          document.documentElement.classList.add("render-ready");
+        }
+
+        var failSafe = setTimeout(releaseRender, 2500);
+
+        function done() {
+          clearTimeout(failSafe);
+          requestAnimationFrame(releaseRender);
+        }
+
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(done, done);
+        } else if (document.readyState === "complete") {
+          done();
+        } else {
+          window.addEventListener("load", done, { once: true });
+        }
+      })();
+    </script>
     <!-- Start of headStart -->
     <!-- Snippet: ELnUkoT99 -->
     <meta name="color-scheme" content="light" />
